@@ -64,8 +64,8 @@ El operando se encuentra en un registro y está colocado de forma que el primer
 registro es el destino y los otros dos los operadores:
 
 ```MIPS
-
-addu rs, ra, rb       # rs <- ra + rb
+add rs, ra, rb        # rs <- ra + rb
+addu rs, ra, rb       # rs <- ra + rb (unsigned)
 ```
 
 ### Modo inmediato:
@@ -92,12 +92,12 @@ int f, g, h, i;
 f = (g + h) - (i - 100);
 ```
 
-```f = $t3, g = $t0, h = $t1, i = $t2```
+```f = $s0, g = $s1, h = $s2, i = $s3```
 
 ```MIPS
-addu $t4, $t0, $t1
-addiu $t5, $t2, 100
-subu $t3, $t4, $t5
+add $t0, $s1, $s2
+addi $t1, $s3, 100
+sub $s0, $t0, $t1
 ```
 
 ### Modo de memoria
