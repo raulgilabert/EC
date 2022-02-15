@@ -1,4 +1,4 @@
-# EC
+#github support for asm asm EC
 
 ## Profesor
 
@@ -51,7 +51,7 @@ este problema se usa .align seguido de 1, 2 o 3, colocando el inicio de la
 siguiente escritura alineado en un espacio de 2^n siendo n el número después
 del .align.
 
-```mips
+```asm
 
 ```
 
@@ -63,7 +63,7 @@ del .align.
 El operando se encuentra en un registro y está colocado de forma que el primer
 registro es el destino y los otros dos los operadores:
 
-```mips
+```asm
 
 addu rs, ra, rb       # rs <- ra + rb
 ```
@@ -74,7 +74,7 @@ El operando se encuentra en el código de la instrucción y al ejecutarse pasa e
 número de 16 bits a 32 por extensión de signo si es un entero en Ca2 o por
 extensión de zeros si está sin signo.
 
-```mips
+```asm
 addiu rt, rs, inm16   # rt <- rs + SignExt(inm16)
 ori rt, rs, inm16     # rs <- rs OR SignExt(inm16)
 lui rt, inm16 	      # rt_(31..16) <- Inm16
@@ -94,7 +94,7 @@ f = (g + h) - (i - 100);
 
 ```f = $t3, g = $t0, h = $t1, i = $t2```
 
-```mips
+```asm
 addu $t4, $t0, $t1
 addiu $t5, $t2, 100
 subu $t3, $t4, $t5
@@ -104,17 +104,36 @@ subu $t3, $t4, $t5
 
 Solo se admite en instrucciones de tipo load y store
 
-```mips
+```asm
 lw rt, off16(rs)     # rt <- Mem_word[rs + SignExt(off16)]
 sw rt, off16(rs)     # Mem_word[rs + SignExt(off16)] <- rt
 ```
 
 ### Elementos de memoria de 2 bytes usando operadores halfword
 
-```mips
+```asm
 lh rt, off16(rs)     # rt <- SignExt(Mem_half[rs, SignExt(off16)])
 sh rt, off16(rs)     # Mem_half[rs + SignExt(off16)] <- rt_15..0
 ```
+### Elementos de memoria de 1 byte usando operadores de byte
+
+```asm
+lb rt, off16(rs)     # rt <- SignExt(Mem_byte[rs, SignExt(off16)])
+sb rt, off16(rs)     # Mem_byte[rs + SignExt(off16)] <- rt_7..0
+```
+
+### Elementos de memoria de 2 bytes usando operadores halfword o 1 byte usando operadores de byte de elementos sin signo
+
+```asm
+lhu rt, off16(rs)     # rt <- SignExt(Mem_half[rs, SignExt(off16)])
+shu rt, off16(rs)     # Mem_half[rs + SignExt(off16)] <- rt_15..0
+lbu rt, off16(rs)     # rt <- SignExt(Mem_byte[rs, SignExt(off16)])
+sbu rt, off16(rs)     # Mem_byte[rs + SignExt(off16)] <- rt_7..0
+```
+
+La dirección efectiva de ```lw, sw``` debe de ser múltiplo de 4, la de
+```lh, lhu, sh y shu``` debe de ser múltiplo de 2. En caso de no serlo dará una
+excepción.
 
 
 
