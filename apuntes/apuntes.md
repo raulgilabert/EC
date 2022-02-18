@@ -49,7 +49,8 @@ La alineación de espacios de memorias se hace de forma automática excepto con
 .space (la utilizada para declarar vectores y otros usos grandes). Para evitar
 este problema se usa .align seguido de 1, 2 o 3, colocando el inicio de la
 siguiente escritura alineado en un espacio de 2^n siendo n el número después
-del .align.
+del .align. Importante: ```.align 0``` no alinea sino que desactiva todos los
+posteriores.
 
 ```MIPS
 
@@ -177,9 +178,43 @@ memoria diferentes a la que apunta la etiqueta.
 ### Caracteres
 
 Hay diferentes tipos de codificación que conectan los símbolos con números en
-binario (Unicode, EBCDIC, ASCII, etc.)
+binario (Unicode, EBCDIC, ASCII, etc.).
 
+#### Código ASCII de 7 bits (1963)
 
+Los códigos del 0 al 31 son de control, lo que quiere decir que no son
+imprimibles.
+
+Los importantes para conocer de memoria son los siguientes:
+
+```
+0x20 = ' '
+0x30 = '0'
+0x41 = 'A'
+0x61 = 'a'
+
+```
+
+## Formatos de las instrucciones
+
+Hay tres tipos de formatos distintos de instrucciones
+
+- Registro:
+    6 bits de opcode, 15 bits para registro (3 registros), 5 bits para shamt
+    (shift amount) y 6 bits para funct (más bits de operación).
+
+- Inmediato:
+    6 bits de opcode, 10 bits para registro (2 registros) y 16 bits del número
+    inmediato.
+
+- Salto:
+    6 bits de operación y 26 bits con la dirección de destino.
+
+## Representación de vectores y punteros
+
+Agrupación de n elementos del mismo tipo identificados por un índice que va de 
+0 a n - 1. Estos elementos están guardados en posiciones consecutivas de 
+memoria y en MIPS deben de respetas las reglas de alineación.
 
 
 
