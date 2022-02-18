@@ -135,7 +135,49 @@ La dirección efectiva de ```lw, sw``` debe de ser múltiplo de 4, la de
 ```lh, lhu, sh y shu``` debe de ser múltiplo de 2. En caso de no serlo dará una
 excepción.
 
+### Pseudoinstrucciones o macros
 
+Estas pseudoinstrucciones simplifican operaciones frecuentes y facilitan la
+escritura y depuración del código.
+
+Estas son ```move, li y la```:
+
+```mips
+    .data
+x:  .word 0
+y:  .word 69, 70
+
+
+
+move $t1, $t2      = addu $t1, $t2, $zero
+
+li $t1, 100        = addiu $t1, $zero, 100
+
+li $t1, 0x075080AA = lui $at, 0x0750   (load upper immediate)
+		     ori $t1, $at, 0x80AA
+
+la $t1, y	   = lui $at, 0x1001
+		     ori $t1, $at, 0x0004
+
+la $t1, y+4	   = lui $at, 0x1001
+		     ori $t1, $at, 0x0008
+
+```
+
+```move``` guarda el valor en el segundo registro también en el primero. 
+```li``` mete el número en el registro que se le da. Esto permite guardar
+números de más de 16 bits ya que se puede traducir por más de una instrucción.
+```la``` tiene la misma utilidad que ```li``` pero que en lugar de tener el
+número directamente mete una dirección de memoria de una etiqueta. Además
+que a esta etiqueta se le añada un número permitiendo acceder a direcciones de
+memoria diferentes a la que apunta la etiqueta.
+
+## Sistemas de representación binaria
+
+### Caracteres
+
+Hay diferentes tipos de codificación que conectan los símbolos con números en
+binario (Unicode, EBCDIC, ASCII, etc.)
 
 
 
