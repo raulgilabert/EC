@@ -23,7 +23,7 @@ fibucle:
 bucle2:
 	slt	$t4, $t0, $t1
 	bne	$t4, $zero, fibucle2
-	subu	$t0, $t1, $t0
+	subu	$t0, $t0, $t1
 	addiu	$t3, $t3, 1
 	b	bucle2
 fibucle2:
