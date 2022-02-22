@@ -38,11 +38,12 @@ dentro son "locals".
 
 Las declaraciones de espacio
 
-| nombre | tamaño | dirección \
-| .byte  | 1      | - \
-| .half  | 2      | múltiple de 2 \
-| .word  | 4      | múltiple de 4 \
-| .dword | 8      | múltiple de 8 \
+| nombre | tamaño | dirección     |
+|--------|--------|---------------|
+| .byte  | 1      | -             |
+| .half  | 2      | múltiple de 2 |
+| .word  | 4      | múltiple de 4 |
+| .dword | 8      | múltiple de 8 |
 
 La alineación de espacios de memorias se hace de forma automática excepto con
 .space (la utilizada para declarar vectores y otros usos grandes). Para evitar
