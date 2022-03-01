@@ -170,6 +170,16 @@ que apunta la etiqueta.
 
 ## Sistemas de representación binaria
 
+### Ca1
+
+En caso que el número sea mayor o igual que 0 es ese número en binario. En caso
+que sea menor o igual a 0 es el número más 2^n + 1
+
+### Exceso a algo
+
+el número es el entero en binario + (2^(n - 1) - 1)
+
+
 ### Caracteres
 
 Hay diferentes tipos de codificación que conectan los símbolos con números en
