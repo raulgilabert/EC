@@ -221,6 +221,7 @@ while.
 Es un equivalente a un while con una elecución previa y una a ejecutar al final
 de la iteración.
 
+  /* Pre: el parametre implicit no conte cap estudiant amb el DNI d'est;
 ### `do-while`
 
 Es similar a un while pero se itera mínimo una vez.
@@ -319,4 +320,21 @@ empezando desde la cima del bloque.
 - Hay que respetar las normas de alineación.
 - El tamaño y la dirección inicial del bloque deben ser múltiplos de 4.
 
+#### Subrutinas multinivel
 
+Son subrutinas que llaman a otras subrutinas.
+
+Para restaurar los valores de los registros después de llamar a una subrutina
+hay distintos métodos:
+
+ - Guardar en memoria los valores de los registros. Es muy poco eficiente.
+ - El ABI de MIPS da la solución de dividir los registros entre temporales
+ (`$t, $v, $a, $f0-$f19`) y seguros (`$s, $sp, $ra y $f20-$f31`). Este método se divide en dos pasos:
+    1. Determinar qué registros seguros se usarán: \
+	Identifica qué datos almacenados en registros se generarán antes de una
+	llamada a una subrutina y se usarán después de esta.
+    2. Salvar y restaurar los registros seguros
+	- Al inicio de la subrutina salva el valor anterior de los registros
+	seguros en el bloque de activación usando un método store.
+	- Al final de la subrutina restaura los valores originales de los
+	registros usando un método load.
