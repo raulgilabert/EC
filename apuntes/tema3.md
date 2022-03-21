@@ -327,14 +327,43 @@ Son subrutinas que llaman a otras subrutinas.
 Para restaurar los valores de los registros después de llamar a una subrutina
 hay distintos métodos:
 
- - Guardar en memoria los valores de los registros. Es muy poco eficiente.
- - El ABI de MIPS da la solución de dividir los registros entre temporales
- (`$t, $v, $a, $f0-$f19`) y seguros (`$s, $sp, $ra y $f20-$f31`). Este método se divide en dos pasos:
+- Guardar en memoria los valores de los registros. Es muy poco eficiente.
+- El ABI de MIPS da la solución de dividir los registros entre temporales
+ (`$t, $v, $a, $f0-$f19`) y seguros (`$s, $sp, $ra y $f20-$f31`).
+
+Este método se divide en dos pasos:
     1. Determinar qué registros seguros se usarán: \
-	Identifica qué datos almacenados en registros se generarán antes de una
-	llamada a una subrutina y se usarán después de esta.
+        Identifica qué datos almacenados en registros se generarán antes de una
+        llamada a una subrutina y se usarán después de esta.
     2. Salvar y restaurar los registros seguros
-	- Al inicio de la subrutina salva el valor anterior de los registros
-	seguros en el bloque de activación usando un método store.
-	- Al final de la subrutina restaura los valores originales de los
-	registros usando un método load.
+        - Al inicio de la subrutina salva el valor anterior de los registros
+        seguros en el bloque de activación usando un método store.
+        - Al final de la subrutina restaura los valores originales de los
+        registros usando un método load.
+
+## Estructura de la memoria en MIPS
+
+- 0x00000000-0x00400000 reservado
+- 0x00040000-0x10000000 .text
+- 0x10000000-0x10010000 .sdata
+- 0x10010000-0x80000000 .data, heap y pila
+- 0x80000000-0xffffffff reservado para el sistema operativo
+
+### Sección `.data`
+
+Tiene un tamaño fijo para cada programa, sirve para guardar variables globales
+en C y ocupa siempre el mismo espacio durante toda la ejecución del programa.
+
+
+### Sección pila
+
+Se usa para guardar variables locales, crece dinámicamente hacia direcciones
+menores y reserva o liberal al inicio y final de las subrutinas.
+
+### Sección `.heap`
+
+Guarda variables que se crean y destruyen explícitamente, crece hacia
+direcciones mayores. La reserva y liberación es tarea del SO usando las
+funciones de C `malloc()` y `free()`.
+
+
