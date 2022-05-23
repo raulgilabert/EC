@@ -65,7 +65,7 @@ De esta manera se explota los dos tipos de localidad:
   acceder a un dato del subsistema de memoria y que se finaliza la
   transferencia. En caso de acierto, este tiempo es t_h (*tiempo de acierto*),
   que es una característica de la cache que es básicamente el tiempo que tarda
-  en pasar un dato de la cache a la CPU. En caso de fallada, es t_h más un 
+  en pasar un dato de la cache a la CPU. En caso de fallada, es t_h más un
   *tiempo de penalización* t_p que es tiempo que tarda en copiar el bloque de
   la memoria a la cache.
 
@@ -130,7 +130,7 @@ en cache como en memoria principal, de forma que si se tiene que hacer un
 reemplazo en la cache se puede hacer con la certeza de que el dato en la
 memoria principal es igual.
 
-#### Escritura retrasada
+#### Escritura retardada
 
 Al producirse un acierto de cache se escribe el dato únicamente en cache. De
 esta forma el programa se ejecuta más rápidamente pero se necesita usar un bit
@@ -158,4 +158,123 @@ Todos estos casos se pueden combinar, formando la política de escritura. Se
 suele trabajar con dos combinaciones diferentes:
 
 - Escritura inmediata sin asignación
-- 
+- Escritura retardada con asignación
+
+### Gestión de las escrituras y rendimiento
+
+#### Escritura inmediata
+
+Mantener la misma versión simplifica el trabajo pero trae problemas de
+rendimiento al tener que esperar a que se escriba en la memoria principal cada
+vez que se hace una escritura. Por eso se suele usar un buffer de escritura que
+se dedica a guardar los datos que tienen que llevarse a la memoria principal.
+De esta manera con escribir el dato en la cache y el buffer ya s epiede
+continuar con la ejecución.
+
+Esto permite, en caso de fallada, que no haga falta cargar el dato al haberse
+escrito también en la memoria principal, de forma que al requerirse en lectura
+se carga el dato de la memoria principal y no lo lee directamente de la cache.
+
+#### Escritura retardada
+
+Al mantener diferentes versiones entre memoria principal y memoria cache no
+permite escribir sin tener que comprobar si hay acierto o no, ya que en este
+caso es totalmente necesario que el bloque esté en cache antes de escribir.
+Para resolver esto se suele usar un buffer también, en el que se escribe el
+dato de manera provisional.
+
+En caso de fallada de cache, al requerir un reemplazo de bloque y contener
+datos modificados, se tendrá que copiar el bloque entero en la memoria
+principal, por lo que se suele usar un buffer también para almacenar el bloque
+pendiente de escribir en la memoria principaly permitir continuar la ejecución
+mientras se acaba de escribir el dato.
+
+## Diseño de la memoria para soportar caches
+
+Ya que el *tiempo de penalización* depende en gran medida de varios factores
+como el tiempo de lectura/escritura para un bloque de la memoria o el tiempo de
+transferencia en el bus de datos.
+
+Un sistema con cache tiene dos interconexiones principales:
+
+- Procesador con cache
+- Cache con memoria principal
+
+Estas interconexiones se realizan a partir de buses de datos. Normalmente el
+tamaño de estos buses concidirá con el que la memoria puede leer o escribir
+cada vez.
+
+## Medidas de rendimiento
+
+### Modelo de tiempo
+
+De cara a especificar una configuración estándar para los ejercicios de
+rendimiento hay que describir un modelo de tiempo que permitirá determinar los
+ciclos de reloj que tarda una referencia de memoria en cualquier situación.
+
+A nivel general hay que considerar que el tiempo de acceso a un dato de la
+memoria cache es el tiempo que tarda en determinar si es un acierto o una
+fallada y dar el dato en caso de acierto (t_h) más el tiempo de penalización
+para resolver la referencia en acceder al siguiente nivel de la jerarquía de
+memoria.
+
+Hay que tomar en cuenta que el acceso a las etiquetas para comprobar si la
+referencia es un acierto y la entrega en caso de aciertose realizan
+secuencialmente durante t_h. En la primera mitad se accede a las etiquetas y en
+la seguna se hace la lectura/escritura en la cache.
+
+Para aquellas configuraciones con escritura inmediata se considera la
+existencia de un buffer de escritura con tamaño ilimitado donde de almacenan
+las escrituras pendientes de llevar a la memoria principal. También se
+considera que ninguna referencia a memoria entra en conflicto con aquellas
+escrituras pendientes en el buffer. Hay que tomar en cuenta ue el contenido del
+buffer se lleva en paralelo a la ejecución de las instrucciones que van
+posteriormente en el acceso a memoria.
+
+## Mejoras: asociatividad y multinivel
+
+### Asociatividad total o por conjuntos
+
+Los bloques de la memoria principal dentro de la cache s eubicaban mediante
+correspondecia directa. Esta técnica ofrece un buen rendimiento pero no tiene
+en cuenta el nivel de ocupación del resto de la cache,, de forma que se podría
+tener la cache vacía excepto una línea que se va modificando continuamente.
+
+#### Cache completamente asociativa
+
+Consiste en ubicar los bloques de la memoria principal en cualquier bloque
+libre de la memoria cache. Esto aprovecha el espacio reduciendo la tasa de
+falladas pero hace que localizar un bloque sea mucho más costoso y lento. El
+número de un bloque ya no dará información sobre la ubicación del bloque dentro
+de la cache, cosa que provoca tener que mirar en todas las entradas una a una.
+
+#### Cache asociativa por conjuntos
+
+La cache asociativa por conjuntos tienen un núero determinado de entradas, como
+las caches de correspondencia directa pero que en lugar de ser línea son
+conjuntos. El número de bloque de la memoria principal determinará a qué
+conjunto tiene que ir en la cache. Aun así en cada conjunto no tiene por qué ir
+solo un bloque, sino que pueden caber varios. Cualquiera de los bloques que
+permita el conjunto se le llamará vía. Dentro de un conjunto la ubicación de un
+bloque no dependerá de la dirección, sino que se cogerá la primera vía que esté
+libre. De esta manera se determina el conjunto de forma directa pero la vía de
+forma asociativa.
+
+---
+
+#### Reemplazamiento LRU
+
+Es un algoritmo que se basa en reemplazar el bloque más antiguo por el nuevo.
+
+### Cache multinivel
+
+Actualmente muchos procesadores incluyen un segundo nivel de cache. Dada una
+referencia a memoria se intentará resolver en la cache de primer nivel. En caso
+de fallada se hará en la de segundo nivel. En caso de volver a tener fallada se
+irá ya a la memoria principal.
+
+Esto tiene la ventaja de poder orientar cada cache a un objetivo distinto,
+siendo la de primer nivel una con bajo nivel de asociatividad, pocas palabra y
+poca capacidad, teniendo un enfoque en la velocidad de acceso. En cambio, la
+cache de segundo nivel tiene alta asociatividad, bloques grandes y mucha
+capacidad para disminuir la cantidad de accesos a la memoria principal.

@@ -35,6 +35,34 @@ main:
 
 
 descompon:
+	slt	$t0, $a0, $zero		# cf < 0
+	sw	$t0, 0($a1)		# *s = (cf < 0)
+	sll	$t0, $a0, 1		# cf = cf << 1
+	bne	$t0, $zero, else	# if (c == 0)
+	move	$t1, $zero		# exp <- $t1
+	b	end
+else:
+	li 	$t1, 18			# exp = 18
+whilestart:
+	blt	$t0, $zero, whileend	# while (cf >= 0)
+	sll	$t0, $t0, 1		# cf = cf << 1
+	addiu	$t1, $t1, -1		# exp--
+	b	whilestart
+whileend:
+	srl	$t0, $t0, 8		# cf >> 8
+	li	$t2, 0x7FFFFF		# 0x7FFFFF
+	and	$t0, $t0, $t2		# cf = (cf >> 8) & 0x7FFFFF
+	addi	$t1, $t1, 127		# exp = exp + 127
+end:
+	sw	$t1, 0($a2)		# *e = exp
+	sw	$t0, 0($a3)		# *m = cf
+	jr	$ra
 
 compon:
+	sll	$t0, $a0, 31		# signe << 31
+	sll	$t1, $a1, 23		# exponent << 23
+	or	$t0, $t0, $t1		# (signe << 31) | (exponent << 23)
+	or	$t0, $t0, $a2		# (signe << 31) | (exponent << 23) | mantissa
+	mtc1	$t0, $f0		# mueve a C1
+	jr	$ra
 
